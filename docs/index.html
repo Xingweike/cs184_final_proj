@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>CS 184 Final Project</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<div class="mid" style="width: 850px; margin: 0 auto;">
+<h1 align="middle">CS184 Final Project: Solid Texture Synthesis</h1>
+    <h4 align="middle">
+        Andrew Kim (adkim@berkeley.edu), 3032735084, github.com/adkim99
+        </h4><h4 align="middle">
+        Mariana Vazquez (marianavazquezr@berkeley.edu) : 3033107768, github.com/marianavazquezr
+    </h4><h4 align="middle">
+        Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
+    </h4>
+
+<div class="padded">
+    <p>
+    In our final project, we will be creating a solid texture from an existing 2D texture. We will be using 2D texture optimization techniques to achieve this goal.
+    </p>
+
+<h2 align="middle">Problem Description</h2>
+    <p>
+    In our previous projects for this class, we implemented simple texture mapping to objects in the scene. However, for many objects there are specific textures used to texturize certain objects. We will create a way to create a solid texture from an existing 2D texture, and apply the same solid texture onto multiple objects.
+    </p><p>
+    Solid textures bring advantages such as not needing any planar parameterization, and we can use the same solid texture to texturize multiple objects without having to create multiple different textures. As a result, we can simply “carve” our desired object out of a textured volume.
+    </p><p>
+    It will be difficult to change our implementation from generating a texture from a 2D texture and transitioning it so that the texture at a point on the object depends on its 3D position of the point. In order to implement this, we have to use the x, y, and z location of a pixel to calculate its color, opacity, brightness, etc. We think that one of the major issues in this project will be transitioning everything from object space to world space and mapping the texture correctly.
+
+    </p>
+
+
+<h2 align="middle">Goals and Deliverables</h2>
+    <p>
+        <h4>What we plan to deliver</h4>
+        Our deliverables will be images containing both the original 2D textures and the 3D textures that we generate using the existing 2D textures. 
+        For example (from the reference paper): 
+
+    </p>
+
+    <div align="center">
+        <table style="width=100%">
+            <tr>
+                <td>
+                    <img src="./images/example.png" align="middle" width="300px"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <p>
+        We plan to achieve the same level of fidelity and quality of images as shown in the paper. We will do this by visually comparing our results with those presented in the paper.
+        
+        <h4>What We Hope to Deliver</h4>
+        We hope to possibly improve on what is presented in the paper based on their own metrics. Again, this would be judged by visual comparison of our results with theirs. Additonally, speed and quality improvements can always be made. Additionally, the paper referenced below also includes other algorthims such as Histogram matching operations we could implement if we have the time.
+
+    </p>
+
+<h2 align="middle">Schedule</h2>
+    <p>
+    <h4>Week 1:</h4>
+    Project Start (after feedback)- April 14th <br>
+    Implement simple 2D texturing and texture maps.
+    </p><p>
+    <h4>Week 2:</h4>
+    Extend 2D texture optimization techniques to synthesize 3D texture solids<br>
+    Non-parametric texture optimization/histogram matching
+    </p><p>
+    <h4>Week 3:</h4>
+    Graded Milestone- Tuesday April 28th<br>
+    Start to generate textured objects from our solid texture, bug fixing.
+    </p><p>
+    <h4>Week 4:</h4>
+    Presentations- Thursday May 7th<br>
+    Work on presentation, generate finialized objects from out solid texture.
+    </p><p>
+    <h4>Final Deliverables- Tuesday May 12th</h4>
+    </p>
+    
+
+  
+
+
+<h2 align="middle">Resources</h2>
+    <p>
+    We will utilize the hive machines and our own machines. We will likely be coding in C++.
+
+    </p><p> The Specs on our own machines:    </p><p>
+    Windows 10 <br>
+    Mac OS Catalina, 8GB Memory, 2.7 GHz i5
+    </p><p>
+
+    https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf
+
+    </p><p>
+    We also plan on using the starter code for earlier projects in this class and build on it. Since we already implemented 2d texture mapping, we plan on expanding the functionality of our ray tracer.
+ 
+</p>
+
+</div>
+</div>
+
+</body>
+</html>
+
+
+
+
+
