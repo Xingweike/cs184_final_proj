@@ -43,6 +43,10 @@
     <p>
     The main issue with our current implementation is that it is too slow. Even for a small 128x128 texture, we are creating a solid with 128x128x128 voxels, which is about 2 million voxels. For each voxel, we are comparing its neighborhoods to each neighborhood in the texture, which is another 128x128 pixels at most, for each voxel. And that's only the search phase. In the end, this could take until the heat death of the universe to create a small solid texture of wood.
     </p>
+    <p>
+        <a href="https://drive.google.com/open?id=1OZAPVVajvbRZpNxPESyouGc0-_8XYF7M">slides & video</a>
+
+    </p>
 
 
 <h2 align="middle">Preliminary Results</h2>
@@ -83,10 +87,10 @@
 
 <h2 align="middle">Future Work Plan</h2>
     <p>
-    Our current program is currently being written in python, using convienant methods from libraries such as numpy. However, we have yet found a way to actually map our solid texture onto solids, whether the results are rendors or actual 3D model. Our current solid texture is being stored in an array of RGB values, which is very space intensive. 
+    Our current program is currently being written in python, using convenient methods from libraries such as numpy. However, we have yet found a way to actually map our solid texture onto solids, whether the results are rendors or actual 3D models. Our current solid texture is being stored in an array of RGB values, which is very space intensive. 
     </p>
     <p>
-    Currently, our program is not optimized, and even with a small neighborhood size of 25x25 and a small texture like 256x256, the process would take an extremely long time. We hope to speed up this time by using some prebuilt python libraries that can help with complex computations such as calculating the nearest neighbors. We are curreently storing the solid texture in a 3D array containing the RGB values of each voxel, so if we were to scale the textures or the neighborhood sizes the memory required would be massive. Both time complexity and space complexity are huge issues right now, and we are making attempts to solve it. We are thinking about porting everything to C++ to hopefully make things a bit faster.
+    Currently, our program is not optimized, and even with a small neighborhood size of 25x25 and a small texture like 256x256, the process would take an extremely long time. We hope to speed up this time by using some prebuilt python libraries that can help with complex computations such as calculating the nearest neighbors. We are currently storing the solid texture in a 3D array containing the RGB values of each voxel, so if we were to scale the textures or the neighborhood sizes the memory required would be massive. Both time complexity and space complexity are huge issues right now, and we are making attempts to solve it. We are thinking about porting everything to C++ to hopefully make things a bit faster.
     </p>
     <p>
         Potential libraries we are looking at:  <br>
@@ -106,6 +110,7 @@
 
 </body>
 </html>
+
 
 
 
