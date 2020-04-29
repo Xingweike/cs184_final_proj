@@ -17,35 +17,38 @@
 <br />
 <div class="mid" style="width: 850px; margin: 0 auto;">
 <h1 align="middle">CS184 Final Project: Solid Texture Synthesis</h1>
-    <h4 align="middle">
-        Andrew Kim (adkim@berkeley.edu), 3032735084, github.com/adkim99
-        </h4><h4 align="middle">
-        Mariana Vazquez (marianavazquezr@berkeley.edu) : 3033107768, github.com/marianavazquezr
-    </h4><h4 align="middle">
-        Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
-    </h4>
-
-<div class="padded">
-    <p>
-    In our final project, we will be creating a solid texture from an existing 2D texture. We will be using 2D texture optimization techniques to achieve this goal.
+    <p align="middle">
+    Andrew Kim (adkim@berkeley.edu), 3032735084, github.com/adkim99
     </p>
-
-<h2 align="middle">Problem Description</h2>
-    <p>
-    In our previous projects for this class, we implemented simple texture mapping to objects in the scene. However, for many objects there are specific textures used to texturize certain objects. We will create a way to create a solid texture from an existing 2D texture, and apply the same solid texture onto multiple objects.
-    </p><p>
-    Solid textures bring advantages such as not needing any planar parameterization, and we can use the same solid texture to texturize multiple objects without having to create multiple different textures. As a result, we can simply “carve” our desired object out of a textured volume.
-    </p><p>
-    It will be difficult to change our implementation from generating a texture from a 2D texture and transitioning it so that the texture at a point on the object depends on its 3D position of the point. In order to implement this, we have to use the x, y, and z location of a pixel to calculate its color, opacity, brightness, etc. We think that one of the major issues in this project will be transitioning everything from object space to world space and mapping the texture correctly.
-
+    <p align="middle">
+    Mariana Vazquez (marianavazquezr@berkeley.edu) : 3033107768, github.com/marianavazquezr
+    </p>
+    <p align="middle">
+    Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
     </p>
 
 
-<h2 align="middle">Goals and Deliverables</h2>
+<h2 align="middle">Milestone Update</h2>
     <p>
-        <h4>What we plan to deliver</h4>
-        Our deliverables will be images containing both the original 2D textures and the 3D textures that we generate using the existing 2D textures. 
-        For example (from the reference paper): 
+    In our final project we proposed a way to create a solid texture from an existing 2D texture, and apply the same solid texture onto multiple objects. We are currently implementing the Solid Texture Synthesis algorithm from Kopf's Paper "Solid Texture Synthesis from 2D Exemplars". We split up the main synthesis algorithm into two parts: the search phase and the optimization phase. 
+    </p>
+
+    <p>
+    In the search phase, we started off with a solid filled in with random pixels from the original texture. Our goal for the search phase was to identify three neighborhoods from the original texture that matches with the three axis-aligned neighborhoods at each voxel in our generated solid. This was accomplished by taking each axis aligned neighborhood from our voxel, and computing the neighborhood in our original texture that minimized our energy function. The energy function is the sum of the Euclidean norm (L2 norm) between each pixel's RGB values.
+    </p>
+
+    <p>
+    In the optimization phase, we take the three neighborhoods we found in the search phase, and use these neighborhoods to update each voxel in our randomly generated solid. To find the value of each voxel, we find the weighted average of a collection of texels from our different exemplar neighborhoods we found in the previous phase.
+    </p>
+
+    <p>
+    The main issue with our current implementation is that it is too slow. Even for a small 128x128 texture, we are creating a solid with 128x128x128 voxels, which is about 2 million voxels. For each voxel, we are comparing its neighborhoods to each neighborhood in the texture, which is another 128x128 pixels at most. And that's only the search phase. In the end, this could take until the heat death of the universe to create a small solid texture of wood.
+    </p>
+
+
+<h2 align="middle">Preliminary Results</h2>
+    <p> 
+    Our preliminary results were done using a sample wood texture of 256x256, with a neighborhood size of 5x5. 
 
     </p>
 
@@ -60,53 +63,24 @@
     </div>
 
     <p>
-        We plan to achieve the same level of fidelity and quality of images as shown in the paper. We will do this by visually comparing our results with those presented in the paper.
-        
-        <h4>What We Hope to Deliver</h4>
-        We hope to possibly improve on what is presented in the paper based on their own metrics. Again, this would be judged by visual comparison of our results with theirs. Additonally, speed and quality improvements can always be made. Additionally, the paper referenced below also includes other algorthims such as Histogram matching operations we could implement if we have the time.
+    </p>
+
+<h2 align="middle">Future Work Plan</h2>
+    <p>
+    Our current program is currently being written in python, using convienant methods from libraries such as numpy. However, we have yet found a way to actually map our solid texture onto solids, whether the results are rendors or actual 3D model. Our current solid texture is being stored in an array of RGB values, which is very space intensive. 
+    </p>
+    <p>
+    Currently, our program is not optimized, and even with a small neighborhood size of 25x25 and a small texture like 256x256, the process would take an extremely long time. We hope to speed up this time by using some prebuilt python libraries that can help with complex computations such as calculating the nearest neighbors. We are curreently storing the solid texture in a 3D array containing the RGB values of each voxel, so if we were to scale the textures or the neighborhood sizes the memory required would be massive. Both time complexity and space complexity are huge issues right now, and we are making attempts to solve it. We are thinking about porting everything to C++ to hopefully make things a bit faster.
+    </p>
+    <p>
+        https://github.com/yahoojapan/NGT
+    </p>
+    <p>
+    Additionally, in Kopf's paper he mentions histogram matching. We also hope to implement this in the future to help solve the issue of blurry textures.
 
     </p>
 
-<h2 align="middle">Schedule</h2>
-    <p>
-    <h4>Week 1:</h4>
-    Project Start (after feedback)- April 14th <br>
-    Implement simple 2D texturing and texture maps.
-    </p><p>
-    <h4>Week 2:</h4>
-    Extend 2D texture optimization techniques to synthesize 3D texture solids<br>
-    Non-parametric texture optimization/histogram matching
-    </p><p>
-    <h4>Week 3:</h4>
-    Graded Milestone- Tuesday April 28th<br>
-    Start to generate textured objects from our solid texture, bug fixing.
-    </p><p>
-    <h4>Week 4:</h4>
-    Presentations- Thursday May 7th<br>
-    Work on presentation, generate finialized objects from out solid texture.
-    </p><p>
-    <h4>Final Deliverables- Tuesday May 12th</h4>
-    </p>
-    
 
-   
-
-
-<h2 align="middle">Resources</h2>
-    <p>
-    We will utilize the hive machines and our own machines. We will likely be coding in C++.
-
-    </p><p> The Specs on our own machines:    </p><p>
-    Windows 10 <br>
-    Mac OS Catalina, 8GB Memory, 2.7 GHz i5
-    </p><p>
-
-    https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf
-
-    </p><p>
-    We also plan on using the starter code for earlier projects in this class and build on it. Since we already implemented 2d texture mapping, we plan on expanding the functionality of our ray tracer.
- 
-</p>
 
 </div>
 </div>

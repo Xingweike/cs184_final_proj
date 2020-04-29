@@ -14,13 +14,31 @@ arr = np.array(img)
 # PLT.show()
 
 # gets the dimensions of the picture, z should be 3 for RGB values
+exemplar = arr
+exemplar_x, exemplar_y, exemplar_z = exemplar.shape
+print(exemplar_x)
+
+# assuming that the solid texture is a cube (so exemplar_x = exemplar_y)
+sol_dim = exemplar_x
+channel_dim = exemplar_z
+
+# 3D solid texture
+solid = np.zeros(shape=(sol_dim, sol_dim, sol_dim, channel_dim))
+
+# 4D array for matching exemplar neighborhood of each voxel's slices (value for each index is the center of the exemplar neighborhoods)
+matching = np.zeros(shape=(sol_dim, sol_dim, sol_dim, 3))
+
+# 4D array for weights during optimization phase
+matching = np.zeros(shape=(sol_dim, sol_dim, sol_dim, 3))
+
+
+# gets the dimensions of the picture, z should be 3 for RGB values
 x, y, z = arr.shape
 
 # if there is a 360x360 png
 # creates a 360x360x360x3 array
 # assumes the texture is a square
 solid = np.zeros((x,y,x,z))
-
 
 print(solid[0,0,0].shape)
 print(arr[0, 0].shape)
@@ -48,7 +66,10 @@ def generate_random_solid(s):
 # WARNING: Takes a long time!!!
 # generate_random_solid(1)
 
+neighborhood_size = 5
 
+# res = get_neighborhood_ex([12,12])
+# print(res)
 
 # function to find the nearest neighbors on the texture when passed in a 
 # neighborhood and a point from the 3D solid
@@ -58,18 +79,21 @@ def neighborhoods(pixels_x, pixels_y, pixels_z):
 	# Input: Neighborhoods for vectorized neighborhoods for each voxel
 	# in the slices orthogonal to the x, y, and z axis
 
-	# Output: Exemplar neighborhoods on the original texture
+	# Output: Center of exemplar neighborhoods on the original texture
 	
-	min_x_point = (0,0)
-	min_y_point = (0,0)
-	min_z_point = (0,0)
+	min_x_point = [[] for i in range(25)]
+	min_y_point = [[] for i in range(25)]
+	min_z_point = [[] for i in range(25)]
 
 	min_x_value = np.inf
 	min_y_value = np.inf
 	min_z_value = np.inf
 
+	# iterate over each pixel in the texture
 	for i in range(2, x-2):
 		for j in range(2, x-2):
+
+			# array of pixels in the neighborhood
 			cur_point = (i, j)
 			cur_array = [arr[a,b] for a in range(i-2, i+3) for b in range(j-2, j+3)]
 
@@ -78,7 +102,7 @@ def neighborhoods(pixels_x, pixels_y, pixels_z):
 			assert len(cur_array) == len(pixels_y)
 			assert len(cur_array) == len(pixels_z)
 
-			# Calculate X
+			# Calculate X, Y, Z
 			total_x = 0
 			total_y = 0
 			total_z = 0
@@ -90,15 +114,15 @@ def neighborhoods(pixels_x, pixels_y, pixels_z):
 				total_z += np.linalg.norm(cur_array[k] - pixels_z[k])
 
 			if total_x < min_x_value:
-				min_x_point = (i, j)
+				min_x_point = cur_array
 				min_x_value = total_x
 			
 			if total_y < min_y_value:
-				min_y_point = (i, j)
+				min_y_point = cur_array
 				min_y_value = total_y
 			
 			if total_z < min_z_value:
-				min_z_point = (i, j)
+				min_z_point = cur_array
 				min_z_value = total_z
 
 	return [min_x_point, min_y_point, min_z_point]
