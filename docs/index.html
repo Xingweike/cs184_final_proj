@@ -56,9 +56,29 @@
         <table style="width=100%">
             <tr>
                 <td>
-                    <img src="./images/example.png" align="middle" width="300px"/>
+                    <img src="./images/neighborhoods_1_pixel.png" align="middle" width="300px"/>
+                    <figcaption align="middle">The neighborhoods on the texture for 1 pixel</figcaption>
                 </td>
             </tr>
+            <tr>
+                <td>
+                    <img src="./images/neighborhoods.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Figure of our neighbors</figcaption>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img src="./images/weighted_average.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Weighted Average Equation</figcaption>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img src="./images/energy.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Energy Equation (L2 norm)</figcaption>
+                </td>
+            </tr>
+
         </table>
     </div>
 
@@ -73,7 +93,10 @@
     Currently, our program is not optimized, and even with a small neighborhood size of 25x25 and a small texture like 256x256, the process would take an extremely long time. We hope to speed up this time by using some prebuilt python libraries that can help with complex computations such as calculating the nearest neighbors. We are curreently storing the solid texture in a 3D array containing the RGB values of each voxel, so if we were to scale the textures or the neighborhood sizes the memory required would be massive. Both time complexity and space complexity are huge issues right now, and we are making attempts to solve it. We are thinking about porting everything to C++ to hopefully make things a bit faster.
     </p>
     <p>
-        https://github.com/yahoojapan/NGT
+        Potential libraries we are looking at:  <br>
+        https://github.com/yahoojapan/NGT       <br>
+        https://github.com/spotify/annoy        <br>
+        https://pypi.org/project/NearPy/0.1.2/  <br>
     </p>
     <p>
     Additionally, in Kopf's paper he mentions histogram matching. We also hope to implement this in the future to help solve the issue of blurry textures.
