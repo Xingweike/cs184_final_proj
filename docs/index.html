@@ -27,7 +27,6 @@
     Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
     </p>
 
-
 <h2 align="middle">Milestone Update</h2>
     <p>
     In our final project we proposed a way to create a solid texture from an existing 2D texture, and apply the same solid texture onto multiple objects. We are currently implementing the Solid Texture Synthesis algorithm from Kopf's Paper "Solid Texture Synthesis from 2D Exemplars". We split up the main synthesis algorithm into two parts: the search phase and the optimization phase. 
@@ -42,7 +41,7 @@
     </p>
 
     <p>
-    The main issue with our current implementation is that it is too slow. Even for a small 128x128 texture, we are creating a solid with 128x128x128 voxels, which is about 2 million voxels. For each voxel, we are comparing its neighborhoods to each neighborhood in the texture, which is another 128x128 pixels at most. And that's only the search phase. In the end, this could take until the heat death of the universe to create a small solid texture of wood.
+    The main issue with our current implementation is that it is too slow. Even for a small 128x128 texture, we are creating a solid with 128x128x128 voxels, which is about 2 million voxels. For each voxel, we are comparing its neighborhoods to each neighborhood in the texture, which is another 128x128 pixels at most, for each voxel. And that's only the search phase. In the end, this could take until the heat death of the universe to create a small solid texture of wood.
     </p>
 
 
@@ -81,9 +80,6 @@
 
         </table>
     </div>
-
-    <p>
-    </p>
 
 <h2 align="middle">Future Work Plan</h2>
     <p>
