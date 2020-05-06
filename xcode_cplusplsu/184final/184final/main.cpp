@@ -13,6 +13,12 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
 
+#include <algorithm>
+#include <iterator>
+
+#include <chrono>
+
+
 using namespace cv;
 using namespace std;
 
@@ -31,6 +37,7 @@ int solid[tex_size][tex_size][tex_size][3] = {};
 // Functions
 void generate_random_solid();
 void neighborhoods (int pix_x[], int pix_y[], int pix_z[], int size);
+void test_neighbor();
 
 int main() {
     
@@ -55,11 +62,13 @@ int main() {
     
     // generate solid of random RGB pixels from original texture
     // Does not take long at all!
-    generate_random_solid();
+//    generate_random_solid();
 
     // Show image!
     // imshow("Image",image);
     // waitKey(0);
+    
+    test_neighbor();
 }
 
 void generate_random_solid() {
@@ -88,9 +97,6 @@ void generate_random_solid() {
 // Input: (neighbor_size * neighbor_size) amount of pixels for each slice orthogonal to the x, y, and z axis
 // Output: [3][neighbor_size * neighbor_size] array representing best neighborhoods in the original templar
 void neighborhoods (int pix_x[neighbor_size_2][3], int pix_y[neighbor_size_2][3], int pix_z[neighbor_size_2][3]) {
-    int slice_x[neighbor_size_2][3] = {};
-    int slice_y[neighbor_size_2][3] = {};
-    int slice_z[neighbor_size_2][3] = {};
     
     int temp[neighbor_size_2][3] = {};
     
@@ -113,6 +119,10 @@ void neighborhoods (int pix_x[neighbor_size_2][3], int pix_y[neighbor_size_2][3]
                 }
             }
             
+            // Trying roi to get points surrounding each point on the texture
+//            Rect region_of_interest = Rect(bl_x, bl_y, tl_x, tl_y);
+//            Mat image_roi = image(region_of_interest);
+            
             int total_x = 0;
             int total_y = 0;
             int total_z = 0;
@@ -134,13 +144,88 @@ void neighborhoods (int pix_x[neighbor_size_2][3], int pix_y[neighbor_size_2][3]
                 cur_z[i][0] = temp[i][0] - pix_z[i][0];
                 cur_z[i][1] = temp[i][1] - pix_z[i][1];
                 cur_z[i][2] = temp[i][2] - pix_z[i][2];
-                
-                
-                
+
             }
             
             // calculate L2 norm
-            // cv::norm (InputArray src1, int normType=NORM_L2, InputArray mask=noArray())
+            for (int i = 0; i < neighbor_size_2; i += 1) {
+                total_x += sqrt(
+                                pow(temp[i][0] - pix_x[i][0], 2) +
+                                pow(temp[i][1] - pix_x[i][1], 2) +
+                                pow(temp[i][2] - pix_x[i][2], 2)
+                                );
+                
+                total_y += sqrt(
+                                pow(temp[i][0] - pix_y[i][0], 2) +
+                                pow(temp[i][1] - pix_y[i][1], 2) +
+                                pow(temp[i][2] - pix_y[i][2], 2)
+                                );
+                
+                total_z += sqrt(
+                                pow(temp[i][0] - pix_z[i][0], 2) +
+                                pow(temp[i][1] - pix_z[i][1], 2) +
+                                pow(temp[i][2] - pix_z[i][2], 2)
+                                );
+            }
+            
+            int slice_x[neighbor_size_2][3];
+            int slice_y[neighbor_size_2][3];
+            int slice_z[neighbor_size_2][3];
+            
+            if (total_x < min_x_point) {
+                min_x_point = total_x;
+                std::copy(&temp[0][0], &temp[0][0]+neighbor_size_2*3, &slice_x[0][0]);
+            }
+            
+            if (total_y < min_y_point) {
+                min_y_point = total_y;
+                std::copy(&temp[0][0], &temp[0][0]+neighbor_size_2*3, &slice_y[0][0]);
+            }
+            
+            if (total_z < min_z_point) {
+                min_z_point = total_z;
+                std::copy(&temp[0][0], &temp[0][0]+neighbor_size_2*3, &slice_z[0][0]);
+            }
+
         }
     }
+    // TODO: return the three best neighbors in the original texture, which should be located in slice_x, slice_y, and slice_z
+    return ;
+}
+
+void test_neighbor() {
+    srand (1234);
+    int arr_x[neighbor_size_2][3] = {};
+    int arr_y[neighbor_size_2][3] = {};
+    int arr_z[neighbor_size_2][3] = {};
+    
+    for (int i = 0; i < neighbor_size_2; i += 1) {
+
+        int ran_x = rand() % tex_size;  // random number from 0 to 255
+        int ran_y = rand() % tex_size;
+        arr_x[i][0] = array_R[ran_x][ran_y];
+        arr_x[i][1] = array_G[ran_x][ran_y];
+        arr_x[i][2] = array_B[ran_x][ran_y];
+        
+        ran_x = rand() % tex_size;  // random number from 0 to 255
+        ran_y = rand() % tex_size;
+        arr_y[i][0] = array_R[ran_x][ran_y];
+        arr_y[i][1] = array_G[ran_x][ran_y];
+        arr_y[i][2] = array_B[ran_x][ran_y];
+        
+        ran_x = rand() % tex_size;  // random number from 0 to 255
+        ran_y = rand() % tex_size;
+        arr_z[i][0] = array_R[ran_x][ran_y];
+        arr_z[i][1] = array_G[ran_x][ran_y];
+        arr_z[i][2] = array_B[ran_x][ran_y];
+        
+    }
+    
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    neighborhoods (arr_x, arr_y, arr_z);
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds> (end - begin).count() << "[ms]" << std::endl;
+
+    
 }
