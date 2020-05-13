@@ -56,10 +56,7 @@
     In the optimization phase, we take the three neighborhoods that we calculated in the search phase and use them to update each voxel in the solid. The value of each voxel is calculated by finding the weighted average of a collection of texels from the different exemplar neighborhoods found in the search phase. One difference from the paper is that the paper uses mean shift clustering to improve results. We did not implement this. 
     </p>
     <p>
-    After the solid optimization is completed, we start the histogram matching process. This is an important step because only implementing the solid optimization algorithm is not enough because this process alone can converge to the wrong local minimum. Histogram matching is used after the process to address this issue. However, we did this a little different than the paper described. 
-    </p>
-    <p>
-    The paper used iterative re-weighting during histogram matching, but we just did histogram matching separately. We used histogram matching to try and match global statistics of the exemplar to those of the solid in order to reduce noise in the solid texture. 
+    After the solid optimization is completed, we start the histogram matching process. This is an important step because only implementing the solid optimization algorithm is not enough because this process alone can converge to the wrong local minimum. Histogram matching is used after the process to address this issue. However, we did this a little different than the paper described. The paper used iterative re-weighting during histogram matching, but we just did histogram matching separately. We used histogram matching to try and match global statistics of the exemplar to those of the solid in order to reduce noise in the solid texture. 
     </p>
 
 
