@@ -18,10 +18,10 @@
 <div class="mid" style="width: 850px; margin: 0 auto;">
 <h1 align="middle">CS184 Final Project: Solid Texture Synthesis</h1>
     <p align="middle">
-    Andrew Kim (adkim@berkeley.edu), 3032735084, github.com/adkim99
+    Andrew Kim (adkim@berkeley.edu): 3032735084, github.com/adkim99
     </p>
     <p align="middle">
-    Mariana Vazquez (marianavazquezr@berkeley.edu) : 3033107768, github.com/marianavazquezr
+    Mariana Vazquez (marianavazquezr@berkeley.edu): 3033107768, github.com/marianavazquezr
     </p>
     <p align="middle">
     Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
@@ -35,20 +35,31 @@
 
 <h2 align="middle">Technical Approach</h2>
     <p>
-    We based our approach on the paper “Solid Texture Synthesis from 2D Exemplars” (https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf). In this paper, they integrate ideas from non-parametric texture synthesis as well as global histogram matching. In order to complete the solid optimization, we needed to implement two stages: the search phase and the optimization phase. After these two were done, then histogram matching was used.
+    We based our final approach on the paper “Solid Texture Synthesis from 2D Exemplars” (<a href="https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf">https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf</a>). In this paper, they integrate ideas from non-parametric texture synthesis as well as global histogram matching.
     </p>
     <p>
-    Overall, the solid optimization process starts by forming a volume where each voxel is chosen from the texture exemplar randomly. Through each iteration, the volume is improved to look more similar to the exemplar. This is done by using an energy function that shows the differences between the volume and the exemplar. The texture energy is minimized iteratively by alternating between the search phase and the optimization phase. 
+    We first started off building simple solid textures and tested these solids. The easiest of all was to simply stack up our 2D texture on top of each other over and over again. This resulted in a 2D texture that seemed pretty good, but stacking the image would result in the solid cube having very blurry sides. This was the first step in our implementation, and getting to this point required us to discover and solve many problems we had not thought of before. For example, here we discovered that using python was way too slow, and we had to recreate the whole project in C++ using the opencv library. Additionally, viewing and applying the solid texture to a model was a very difficult endeavor, so we found an external tool that helped us generate visualizations for our solids. 
     </p>
     <p>
-    In the search phase, we start with a solid filled in with random pixels from the original texture. We took each axis aligned neighborhood from our voxel and computed the neighborhood in the exemplar texture that minimized the energy function. The energy function that we used was from the paper and it is the sum of the Euclidean norm (L2 norm) between each pixel’s RGB values. This resulted in identifying three neighborhoods from the original texture that matches the three axis-aligned neighborhoods at each voxel in the generated solid. We used PCA to reduce dimensionality while retaining 95% variance to eventually do ANN using query as voxel and exemplar neighborhoods as data points, also strided with stride of 2 for speedup.
+    We then continued to build on the previous simple solid texture synthesis algorithm. By taking the image and continually rotating the matrix circularly, we could easily create a solid 2D texture that was more consistent than simply stacking the original texture. The resulting solid was now only blurry from one of the three axis, and gave good results when applied to our bunny model. After we had finished our unique solid texture synthesis, we decided to go a step further and recreate the complex solid texture synthesis mentioned in the paper. 
     </p>
     <p>
-    In the optimization phase, we take the three neighborhoods that we calculated in the search phase and use them to update each voxel in the solid. The value of each voxel is calculated by finding the weighted average of a collection of texels from the different exemplar neighborhoods found in the search phase. 
+    In order to complete the solid optimization, we needed to implement two stages: the search phase and the optimization phase. After these two were done, then histogram matching was used. Overall, the solid optimization process starts by forming a volume where each voxel is chosen from the texture exemplar randomly. Through each iteration, the volume is improved to look more similar to the exemplar. This is done by using an energy function that shows the differences between the volume and the exemplar. The texture energy is minimized iteratively by alternating between the search phase and the optimization phase. 
     </p>
     <p>
-    After the solid optimization is completed, we start the histogram matching process. This is an important step because only implementing the solid optimization algorithm is not enough because this process alone can converge to the wrong local minimum. Histogram matching is used after the process to address this issue. However, we did this a little different than the paper described. The paper used iterative re-weighting during histogram matching, but we just did histogram matching separately. We used histogram matching to try and match global statistics of the exemplar to the solid which reduced noise. We used OpenCV to implement this.
-
+    In the search phase, we start with a solid filled in with random pixels from the original texture. We took each axis aligned neighborhood from our voxel and found the neighborhood in the exemplar texture that matched it most closely. These matching neighborhoods are fed as input to the optimization phase in order to calculate the voxel values that minimize the energy function. We identified three neighborhoods from the original texture that match the three axis-aligned neighborhoods for each voxel in the generated solid texture. We do ANN using the unrolled axis-aligned neighborhoods for each voxel as queries and the exemplar neighborhoods as data points. This process is strided with stride of 2 for speedup, so that we only find the matches for every other voxel. In order to speed up ANN, we used PCA to reduce dimensionality while retaining 95% variance. 
+    </p>
+    <p>
+    The paper did not mention whether they alternated between even and odd indices in order to cover the solid texture during search phases. To clarify, striding without alternating between starting at 0 and 1 for consecutive search phases would mean that only half of the texels ever get matched to their exemplar neighborhoods. We made sure to alternate between 0 and 1 as the starting indices for this purpose. 
+    </p>
+    <p>
+    In the optimization phase, we take the three neighborhoods that we calculated in the search phase and use them to update each voxel in the solid. The value of each voxel is calculated by finding the weighted average of a collection of texels from the different exemplar neighborhoods found in the search phase. One difference from the paper is that the paper uses mean shift clustering to improve results. We did not implement this. 
+    </p>
+    <p>
+    After the solid optimization is completed, we start the histogram matching process. This is an important step because only implementing the solid optimization algorithm is not enough because this process alone can converge to the wrong local minimum. Histogram matching is used after the process to address this issue. However, we did this a little different than the paper described. 
+    </p>
+    <p>
+    The paper used iterative re-weighting during histogram matching, but we just did histogram matching separately. We used histogram matching to try and match global statistics of the exemplar to those of the solid in order to reduce noise in the solid texture. 
     </p>
 
 
@@ -60,31 +71,117 @@
     <p>
     Something that we also learned that helped us tackle some of our problems was how to use some OpenCV libraries. We used some of these throughout our project when implementing various of the phases. These were really helpful to understand and use since they ended up speeding up our implementation and made the algorithm simpler to implement. 
     </p>
+    <p>
+    We did have some problems with the aforementioned libraries. Namely, the ANN library that we used from OpenCV did not return the actual closest exemplar neighborhood and instead seemed to return only the first exemplar neighborhoods, leading to solid textures which were largely similar only to a small patch of the exemplar image. Unfortunately, we did not have enough time to debug this error, and this resulted in various images you can see below.
+    </p>
 
   
 
 <h2 align="middle">Results</h2>
+    
+    Github: <a href="https://github.com/Xingweike/cs184_final_proj">https://github.com/Xingweike/cs184_final_proj</a>
+    
+    <br>
+    In our github you can see our old python code in the python folder, and our new migrated code in the c_plus_plus folder. All of our code is located in main.cpp.
+
+    <br>
+    <br>
+    Video: <a href="https://drive.google.com/open?id=11noc7F47s_DVOFA-34aLe0juKU9vita8">https://drive.google.com/open?id=11noc7F47s_DVOFA-34aLe0juKU9vita8</a>
+    
+
     <div align="center">
         <table style="width=100%">
             <tr>
                 <td>
-                    <img src="./images/weighted_average.png" align="middle" width="300px"/>
-                    <figcaption align="middle">test result</figcaption>
+                    <img src="./final_images/Volumes/dune_marble_circularshift.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Our marble solid, with one side blurry</figcaption>
                 </td>
                 <td>
-                    <img src="./images/energy.png" align="middle" width="300px"/>
-                    <figcaption align="middle">test result</figcaption>
+                    <img src="./final_images/Volumes/dunecube.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Splicing our solid texture</figcaption>
                 </td>
             </tr>
             <br>
             <tr>
                 <td>
-                    <img src="./images/neighborhoods.png" align="middle" width="300px"/>
-                    <figcaption align="middle">test result</figcaption>
+                    <img src="./final_images/Volumes/cauasticcube.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Caustic Solid</figcaption>
                 </td>
                 <td>
-                    <img src="./images/neighborhoods_1_pixel.png" align="middle" width="300px"/>
-                    <figcaption align="middle">test result</figcaption>
+                    <img src="./final_images/Volumes/causticbunny.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Caustic Bunny</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <img src="./final_images/Volumes/cobblecube.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Cobblestone Solid</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/cobblebunny.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Cobblestone Bunny</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <img src="./final_images/Volumes/wavecube.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Wavy Bunny</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/wavebunny.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Wavy Bunny</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <img src="./final_images/Volumes/marblecube.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Marble Solid</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/marblebunny.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Marble Bunny</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+        </table>
+    </div>
+    <br>
+    <p>Below are examples of our nearest neighbors algorithm failing. Instead of finding the best matching neighborhood, it would always fetch the first neighborhood. As a result, we get a solid made of one neighborhood multiplied.</p>
+    <div align="center">
+        <table style="width=100%">
+                <td>
+                    <img src="./final_images/Volumes/bad3_2.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Wood Texture</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/bad3.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Single Neighborhood Solid</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <img src="./final_images/Volumes/bad1_2.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Dune Texture</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/bad1.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Single Neighborhood Solid</figcaption>
+                </td>
+            </tr>
+            <br>
+            <tr>
+                <td>
+                    <img src="./final_images/Volumes/bad2_2.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Dune 2 Texture</figcaption>
+                </td>
+                <td>
+                    <img src="./final_images/Volumes/bad2.png" align="middle" width="300px"/>
+                    <figcaption align="middle">Single Neighborhood Solid</figcaption>
                 </td>
             </tr>
             <br>
@@ -96,12 +193,19 @@
 
 <h2 align="middle">References</h2>
     <p>
-    Solid Texture Synthesis from 2D Exemplars: https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf
+    Solid Texture Synthesis from 2D Exemplars: 
+    <a href="https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf">https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf</a>
     </p>
 
 <h2 align="middle">Contributions</h2>
     <p>
-    asdf
+    Andrew Kim: Helped write solid texture synthesis and code for solid texture optimization from the paper, and generated images from solid textures.
+    </p>
+    <p>
+    Mariana Vazquez: Helped write and debug our code and wrote a majority of our writeups and powerpoints.
+    </p>
+    <p>
+    Tom Liu: Helped write solid texture synthesis, helped debug solid texture optimization, and provided .vols to generate images out of.
     </p>
 
 </div>
