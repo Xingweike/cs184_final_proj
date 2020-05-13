@@ -27,55 +27,64 @@
     Tom Liu (xingweike@berkeley.edu): 3032681823, github.com/Xingweike
     </p>
 
-<h2 align="middle">Milestone Update</h2>
+<h2 align="middle">Summary</h2>
     <p>
-    In our final project we proposed a way to create a solid texture from an existing 2D texture, and apply the same solid texture onto multiple objects. We are currently implementing the Solid Texture Synthesis algorithm from Kopf's Paper "Solid Texture Synthesis from 2D Exemplars". We split up the main synthesis algorithm into two parts: the search phase and the optimization phase. 
-    </p>
-
-    <p>
-    In the search phase, we started off with a solid filled in with random pixels from the original texture. Our goal for the search phase was to identify three neighborhoods from the original texture that matches with the three axis-aligned neighborhoods at each voxel in our generated solid. This was accomplished by taking each axis aligned neighborhood from our voxel, and computing the neighborhood in our original texture that minimized our energy function. The energy function is the sum of the Euclidean norm (L2 norm) between each pixel's RGB values.
-    </p>
-
-    <p>
-    In the optimization phase, we take the three neighborhoods we found in the search phase, and use these neighborhoods to update each voxel in our randomly generated solid. To find the value of each voxel, we find the weighted average of a collection of texels from our different exemplar neighborhoods we found in the previous phase.
-    </p>
-
-    <p>
-    The main issue with our current implementation is that it is too slow. Even for a small 128x128 texture, we are creating a solid with 128x128x128 voxels, which is about 2 million voxels. For each voxel, we are comparing its neighborhoods to each neighborhood in the texture, which is another 128x128 pixels at most, for each voxel. And that's only the search phase. In the end, this could take until the heat death of the universe to create a small solid texture of wood.
-    </p>
-    <p>
-        <a href="https://drive.google.com/open?id=1OZAPVVajvbRZpNxPESyouGc0-_8XYF7M">slides & video</a>
-
+    The project that we chose to do was “Solid Texture Synthesis” which is a very useful tool. Our goal for this project was to be able to take a 2D texture exemplar and synthesize a 3D solid texture from it and be able to apply it to multiple objects.  We chose this because we thought it was interesting that our implementation would be able to carve out something out of a material given only a 2D texture exemplar. This method allows for more realistic solid textures to be rendered such as wood and stone.
     </p>
 
 
-<h2 align="middle">Preliminary Results</h2>
+<h2 align="middle">Technical Approach</h2>
+    <p>
+    We based our approach on the paper “Solid Texture Synthesis from 2D Exemplars” (https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf). In this paper, they integrate ideas from non-parametric texture synthesis as well as global histogram matching. In order to complete the solid optimization, we needed to implement two stages: the search phase and the optimization phase. After these two were done, then histogram matching was used.
+    </p>
+    <p>
+    Overall, the solid optimization process starts by forming a volume where each voxel is chosen from the texture exemplar randomly. Through each iteration, the volume is improved to look more similar to the exemplar. This is done by using an energy function that shows the differences between the volume and the exemplar. The texture energy is minimized iteratively by alternating between the search phase and the optimization phase. 
+    </p>
+    <p>
+    In the search phase, we start with a solid filled in with random pixels from the original texture. We took each axis aligned neighborhood from our voxel and computed the neighborhood in the exemplar texture that minimized the energy function. The energy function that we used was from the paper and it is the sum of the Euclidean norm (L2 norm) between each pixel’s RGB values. This resulted in identifying three neighborhoods from the original texture that matches the three axis-aligned neighborhoods at each voxel in the generated solid. We used PCA to reduce dimensionality while retaining 95% variance to eventually do ANN using query as voxel and exemplar neighborhoods as data points, also strided with stride of 2 for speedup.
+    </p>
+    <p>
+    In the optimization phase, we take the three neighborhoods that we calculated in the search phase and use them to update each voxel in the solid. The value of each voxel is calculated by finding the weighted average of a collection of texels from the different exemplar neighborhoods found in the search phase. 
+    </p>
+    <p>
+    After the solid optimization is completed, we start the histogram matching process. This is an important step because only implementing the solid optimization algorithm is not enough because this process alone can converge to the wrong local minimum. Histogram matching is used after the process to address this issue. However, we did this a little different than the paper described. The paper used iterative re-weighting during histogram matching, but we just did histogram matching separately. We used histogram matching to try and match global statistics of the exemplar to the solid which reduced noise. We used OpenCV to implement this.
+
+    </p>
+
+
+
+<h2 align="middle">Problems Throughout</h2>
     <p> 
-    Our preliminary results were done using a sample wood texture of 256x256, with a neighborhood size of 5x5. 
-
+    One lesson that we learned that helped us a lot for this project was realizing that C++ was faster than Python. In our milestone update, we mentioned that our implementation was very slow. We were testing it with a 128x128 small texture which was creating about 2 million voxels. For each of those voxels, we were comparing its neighborhoods to each neighborhood, something that would take a huge amount of time to complete. One of our main priorities after realizing this was that we needed to figure out how we could speed it up and switching to C++ was certainly a simple change that we made to help our implementation run a little bit faster. 
+    </p>
+    <p>
+    Something that we also learned that helped us tackle some of our problems was how to use some OpenCV libraries. We used some of these throughout our project when implementing various of the phases. These were really helpful to understand and use since they ended up speeding up our implementation and made the algorithm simpler to implement. 
     </p>
 
+  
+
+<h2 align="middle">Results</h2>
     <div align="center">
         <table style="width=100%">
             <tr>
                 <td>
                     <img src="./images/weighted_average.png" align="middle" width="300px"/>
-                    <figcaption align="middle">Weighted Average Equation</figcaption>
+                    <figcaption align="middle">test result</figcaption>
                 </td>
                 <td>
                     <img src="./images/energy.png" align="middle" width="300px"/>
-                    <figcaption align="middle">Energy Equation (L2 norm)</figcaption>
+                    <figcaption align="middle">test result</figcaption>
                 </td>
             </tr>
             <br>
             <tr>
                 <td>
                     <img src="./images/neighborhoods.png" align="middle" width="300px"/>
-                    <figcaption align="middle">Figure of our neighbors</figcaption>
+                    <figcaption align="middle">test result</figcaption>
                 </td>
                 <td>
                     <img src="./images/neighborhoods_1_pixel.png" align="middle" width="300px"/>
-                    <figcaption align="middle">The neighborhoods on the texture for 1 pixel</figcaption>
+                    <figcaption align="middle">test result</figcaption>
                 </td>
             </tr>
             <br>
@@ -83,25 +92,17 @@
         </table>
     </div>
 
-<h2 align="middle">Future Work Plan</h2>
-    <p>
-    Our current program is currently being written in python, using convenient methods from libraries such as numpy. However, we have yet found a way to actually map our solid texture onto solids, whether the results are rendors or actual 3D models. Our current solid texture is being stored in an array of RGB values, which is very space intensive. 
-    </p>
-    <p>
-    Currently, our program is not optimized, and even with a small neighborhood size of 25x25 and a small texture like 256x256, the process would take an extremely long time. We hope to speed up this time by using some prebuilt python libraries that can help with complex computations such as calculating the nearest neighbors. We are currently storing the solid texture in a 3D array containing the RGB values of each voxel, so if we were to scale the textures or the neighborhood sizes the memory required would be massive. Both time complexity and space complexity are huge issues right now, and we are making attempts to solve it. We are thinking about porting everything to C++ to hopefully make things a bit faster.
-    </p>
-    <p>
-        Potential libraries we are looking at:  <br>
-        https://github.com/yahoojapan/NGT       <br>
-        https://github.com/spotify/annoy        <br>
-        https://pypi.org/project/NearPy/0.1.2/  <br>
-    </p>
-    <p>
-    Additionally, in Kopf's paper he mentions histogram matching. We also hope to implement this in the future to help solve the issue of blurry textures.
+  
 
+<h2 align="middle">References</h2>
+    <p>
+    Solid Texture Synthesis from 2D Exemplars: https://www.cs.princeton.edu/courses/archive/fall07/cos597B/papers/kopf-solid-texture.pdf
     </p>
 
-
+<h2 align="middle">Contributions</h2>
+    <p>
+    asdf
+    </p>
 
 </div>
 </div>
